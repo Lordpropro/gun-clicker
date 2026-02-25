@@ -1,3 +1,6 @@
+
+Copy
+
 import streamlit as st
 import time
 import random
@@ -62,16 +65,16 @@ div[data-testid="stMarkdownContainer"]:has(#gun-click-marker) + div button {
     background: linear-gradient(145deg, #1c0505, #2d0808) !important;
     border: 3px solid #ff4444 !important;
     border-radius: 50% !important;
-    width: 280px !important;
-    height: 280px !important;
-    font-size: 7rem !important;
-    line-height: 280px !important;
+    width: 260px !important;
+    height: 260px !important;
     box-shadow: 0 0 40px rgba(255,68,68,0.4), inset 0 0 20px rgba(255,68,68,0.1) !important;
     transition: all 0.08s ease !important;
     cursor: crosshair !important;
     color: white !important;
-    margin: auto;
-    display: block;
+    margin: auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     padding: 0 !important;
 }
 div[data-testid="stMarkdownContainer"]:has(#gun-click-marker) + div button:hover {
@@ -85,10 +88,14 @@ div[data-testid="stMarkdownContainer"]:has(#gun-click-marker) + div button:activ
     box-shadow: 0 0 20px rgba(255,68,68,0.3) !important;
 }
 div[data-testid="stMarkdownContainer"]:has(#gun-click-marker) + div button p {
-    font-size: 7rem !important;
+    font-size: 8rem !important;
     line-height: 1 !important;
     margin: 0 !important;
+    padding: 0 !important;
     color: white !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
 /* ── Shop Cards ── */
@@ -395,11 +402,35 @@ with center:
     if combo_now - s.last_click_time < 2 and s.combo >= 5:
         st.markdown(f"<div style='text-align:center; font-family:Orbitron,monospace; color:#ff8800; font-size:1rem; font-weight:700;'>🔥 COMBO x{s.combo}!</div>", unsafe_allow_html=True)
 
-    # Gun click button
-    st.markdown('<div id="gun-click-marker"></div>', unsafe_allow_html=True)
-    
-    click_label = "🔫"
-    if st.button(click_label, key="gun_btn", use_container_width=False):
+    # Gun click button — emoji overlaid via CSS ::after for guaranteed size
+    st.markdown('''
+    <div id="gun-click-marker"></div>
+    <style>
+    div[data-testid="stMarkdownContainer"]:has(#gun-click-marker) + div {
+        display: flex;
+        justify-content: center;
+        position: relative;
+    }
+    div[data-testid="stMarkdownContainer"]:has(#gun-click-marker) + div::after {
+        content: "🔫";
+        font-size: 9rem;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+        z-index: 10;
+        line-height: 1;
+    }
+    div[data-testid="stMarkdownContainer"]:has(#gun-click-marker) + div button p,
+    div[data-testid="stMarkdownContainer"]:has(#gun-click-marker) + div button span {
+        opacity: 0 !important;
+        font-size: 0 !important;
+    }
+    </style>
+    ''', unsafe_allow_html=True)
+
+    if st.button("🔫", key="gun_btn", use_container_width=False):
         now2 = time.time()
         if now2 - s.last_click_time < 1.0:
             s.combo += 1

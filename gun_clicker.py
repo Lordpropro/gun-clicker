@@ -1,3 +1,6 @@
+
+Copy
+
 import streamlit as st
 import time
 
@@ -293,25 +296,58 @@ with center:
     else:
         st.markdown("<div class='combo-display'></div>", unsafe_allow_html=True)
 
-    # Big gun button as pure HTML — no Streamlit button styling issues
-    st.markdown("""
-        <div style='display:flex; justify-content:center; margin: 10px 0;'>
-            <div class='gun-circle' id='gun-emoji-btn'>\U0001f52b</div>
-        </div>
-        <script>
-        const btn = document.getElementById('gun-emoji-btn');
-        if (btn) {
-            btn.addEventListener('click', function() {
-                // Find and click the hidden Streamlit button
-                const stBtn = document.getElementById('gun-hidden-btn');
-                if (stBtn) stBtn.click();
-            });
-        }
-        </script>
-    """, unsafe_allow_html=True)
+    # Gun button — use nth-of-type to target it specifically
+    # We wrap in a named container div, then use CSS to style ALL buttons inside it
+    st.markdown("""<div id='gun-wrapper'></div>
+<style>
+/* Style the button immediately after our marker div */
+#gun-wrapper + div[data-testid="stButton"] button,
+#gun-wrapper ~ div[data-testid="stButton"] button {
+    background: linear-gradient(145deg, #1c0505, #2d0808) !important;
+    border: 3px solid #ff4444 !important;
+    border-radius: 50% !important;
+    width: 260px !important;
+    height: 260px !important;
+    font-size: 8rem !important;
+    box-shadow: 0 0 40px rgba(255,68,68,0.4) !important;
+    transition: all 0.08s ease !important;
+    cursor: crosshair !important;
+    color: white !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 auto !important;
+}
+#gun-wrapper + div[data-testid="stButton"] button p,
+#gun-wrapper ~ div[data-testid="stButton"] button p {
+    font-size: 8rem !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    color: white !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+#gun-wrapper + div[data-testid="stButton"] button:hover,
+#gun-wrapper ~ div[data-testid="stButton"] button:hover {
+    transform: scale(1.07) !important;
+    box-shadow: 0 0 60px rgba(255,68,68,0.7) !important;
+    border-color: #ff6666 !important;
+}
+#gun-wrapper + div[data-testid="stButton"] button:active,
+#gun-wrapper ~ div[data-testid="stButton"] button:active {
+    transform: scale(0.92) !important;
+}
+/* Center the button in the column */
+#gun-wrapper ~ div[data-testid="stButton"],
+#gun-wrapper + div[data-testid="stButton"] {
+    display: flex !important;
+    justify-content: center !important;
+}
+</style>""", unsafe_allow_html=True)
 
-    # Hidden Streamlit button that does the actual click logic
-    if st.button("FIRE", key="gun_btn"):
+    if st.button("🔫", key="gun_btn", use_container_width=False):
         now2 = time.time()
         if now2 - s.last_click_time < 1.0:
             s.combo += 1

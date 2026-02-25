@@ -62,28 +62,33 @@ div[data-testid="stMarkdownContainer"]:has(#gun-click-marker) + div button {
     background: linear-gradient(145deg, #1c0505, #2d0808) !important;
     border: 3px solid #ff4444 !important;
     border-radius: 50% !important;
-    width: 260px !important;
-    height: 260px !important;
-    font-size: 5rem !important;
+    width: 280px !important;
+    height: 280px !important;
+    font-size: 7rem !important;
+    line-height: 280px !important;
     box-shadow: 0 0 40px rgba(255,68,68,0.4), inset 0 0 20px rgba(255,68,68,0.1) !important;
     transition: all 0.08s ease !important;
     cursor: crosshair !important;
-    color: transparent;
+    color: white !important;
     margin: auto;
     display: block;
+    padding: 0 !important;
 }
 div[data-testid="stMarkdownContainer"]:has(#gun-click-marker) + div button:hover {
     transform: scale(1.07) !important;
     box-shadow: 0 0 60px rgba(255,68,68,0.7), inset 0 0 30px rgba(255,68,68,0.2) !important;
     border-color: #ff6666 !important;
+    color: white !important;
 }
 div[data-testid="stMarkdownContainer"]:has(#gun-click-marker) + div button:active {
     transform: scale(0.92) !important;
     box-shadow: 0 0 20px rgba(255,68,68,0.3) !important;
 }
 div[data-testid="stMarkdownContainer"]:has(#gun-click-marker) + div button p {
-    font-size: 5rem;
-    line-height: 1;
+    font-size: 7rem !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    color: white !important;
 }
 
 /* ── Shop Cards ── */

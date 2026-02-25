@@ -1,3 +1,6 @@
+
+Copy
+
 import streamlit as st
 import time
 
@@ -167,8 +170,8 @@ with center:
     else:
         st.markdown("<div class='combo-display'></div>", unsafe_allow_html=True)
 
-    st.markdown('<div id="gun-anchor"></div>', unsafe_allow_html=True)
-    if st.button("🔫", key="gun_btn", use_container_width=False):
+    st.markdown("""<div style='text-align:center; font-size:15rem; line-height:1; cursor:crosshair;'>🔫</div>""", unsafe_allow_html=True)
+    if st.button("FIRE", key="gun_btn", use_container_width=True):
         now2 = time.time()
         s.combo = s.combo + 1 if now2 - s.last_click_time < 1.0 else 1
         s.last_click_time = now2

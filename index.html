@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GUN CLICKER</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #ff2a2a;
+    --red-glow: rgba(255,42,42,0.5);
+    --gold: #ffd700;
+    --gold-dim: rgba(255,215,0,0.15);
+    --bg: #07070e;
+    --bg2: #0e0e1a;
+    --bg3: #141428;
+    --border: #1e1e3a;
+    --text: #c8c8d8;
+    --text-dim: #555570;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    cursor: default;
+    user-select: none;
+  }
+
+  /* ── SCANLINE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px);
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* ── HEADER ── */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    height: 52px;
+    background: linear-gradient(180deg, #0e0e1e, #09090f);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  header h1 {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: var(--red);
+    text-shadow: 0 0 20px var(--red-glow);
+    letter-spacing: 4px;
+  }
+  .header-stats {
+    display: flex;
+    gap: 28px;
+  }
+  .header-stat {
+    text-align: right;
+  }
+  .header-stat .label {
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .header-stat .value {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.95rem;
+    color: var(--gold);
+    font-weight: 700;
+  }
+
+  /* ── MAIN LAYOUT ── */
+  main {
+    display: grid;
+    grid-template-columns: 220px 1fr 280px;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ── PANELS ── */
+  .panel {
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #1e1e3a transparent;
+  }
+  .panel:last-child { border-right: none; }
+  .panel-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.65rem;
+    color: var(--red);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 12px 14px 8px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 10;
+  }
+
+  /* ── LEFT: STATS + OWNED BUILDINGS ── */
+  #panel-left { background: var(--bg); }
+
+  .stat-block { padding: 12px 14px; border-bottom: 1px solid var(--border); }
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+    font-size: 0.9rem;
+  }
+  .stat-row .s-label { color: var(--text-dim); font-size: 0.8rem; }
+  .stat-row .s-val { color: var(--text); font-weight: 600; font-family: 'Orbitron', monospace; font-size: 0.8rem; }
+  .stat-row .s-val.gold { color: var(--gold); }
+
+  .owned-building {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    border-bottom: 1px solid #0f0f1e;
+    transition: background 0.15s;
+  }
+  .owned-building:hover { background: #0e0e1c; }
+  .owned-building .ob-icon { font-size: 1.4rem; width: 28px; text-align: center; }
+  .owned-building .ob-info { flex: 1; }
+  .owned-building .ob-name { font-size: 0.8rem; font-weight: 700; color: #aaa; }
+  .owned-building .ob-dps { font-size: 0.7rem; color: var(--text-dim); }
+  .owned-building .ob-count {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--red);
+    min-width: 28px;
+    text-align: right;
+  }
+
+  /* notifications */
+  .notif-area { padding: 8px 14px; }
+  .notif {
+    background: #0a1a0a;
+    border: 1px solid #1a4a1a;
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-size: 0.8rem;
+    color: #4dff4d;
+    margin-bottom: 5px;
+    animation: fadeIn 0.3s ease;
+  }
+  .notif.milestone {
+    background: #1a1400;
+    border-color: #4a3a00;
+    color: var(--gold);
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: none; } }
+
+  /* ── CENTER: CLICK AREA ── */
+  #panel-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    background: radial-gradient(ellipse at center, #12122a 0%, var(--bg) 70%);
+    border-right: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Background grid */
+  #panel-center::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,42,42,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,42,42,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+  }
+
+  .money-big {
+    font-family: 'Orbitron', monospace;
+    font-size: 2.4rem;
+    font-weight: 900;
+    color: var(--gold);
+    text-shadow: 0 0 30px rgba(255,215,0,0.4);
+    text-align: center;
+    z-index: 1;
+  }
+  .dps-label {
+    font-size: 0.9rem;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    z-index: 1;
+    margin-top: -10px;
+  }
+
+  /* THE GUN BUTTON */
+  #gun-btn {
+    width: 240px;
+    height: 240px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #2a0808, #150303);
+    border: 3px solid var(--red);
+    box-shadow:
+      0 0 50px rgba(255,42,42,0.3),
+      0 0 100px rgba(255,42,42,0.1),
+      inset 0 0 30px rgba(255,42,42,0.08);
+    cursor: crosshair;
+    font-size: 7rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.06s ease, box-shadow 0.06s ease;
+    position: relative;
+    z-index: 1;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #gun-btn:hover {
+    transform: scale(1.05);
+    box-shadow:
+      0 0 70px rgba(255,42,42,0.5),
+      0 0 120px rgba(255,42,42,0.2),
+      inset 0 0 40px rgba(255,42,42,0.12);
+    border-color: #ff5555;
+  }
+  #gun-btn:active, #gun-btn.clicked {
+    transform: scale(0.93);
+    box-shadow:
+      0 0 30px rgba(255,42,42,0.3),
+      inset 0 0 20px rgba(255,42,42,0.15);
+  }
+
+  /* ring pulse on click */
+  .ring-pulse {
+    position: absolute;
+    width: 240px;
+    height: 240px;
+    border-radius: 50%;
+    border: 2px solid var(--red);
+    animation: ringOut 0.5s ease-out forwards;
+    pointer-events: none;
+    z-index: 0;
+  }
+  @keyframes ringOut {
+    0%   { transform: scale(1); opacity: 0.8; }
+    100% { transform: scale(1.6); opacity: 0; }
+  }
+
+  /* floating +damage numbers */
+  .float-num {
+    position: absolute;
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    color: var(--red);
+    text-shadow: 0 0 10px var(--red-glow);
+    pointer-events: none;
+    animation: floatUp 0.9s ease-out forwards;
+    z-index: 100;
+    font-size: 1.3rem;
+  }
+  .float-num.combo { color: #ff8c00; font-size: 1rem; }
+  @keyframes floatUp {
+    0%   { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-80px) scale(0.7); }
+  }
+
+  .combo-display {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.9rem;
+    color: #ff8c00;
+    font-weight: 700;
+    min-height: 24px;
+    text-align: center;
+    z-index: 1;
+    text-shadow: 0 0 10px rgba(255,140,0,0.5);
+  }
+
+  .click-hint {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    z-index: 1;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:0.9} }
+
+  /* ── RIGHT: SHOP ── */
+  #panel-right { background: var(--bg2); }
+
+  .shop-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--bg2);
+    z-index: 10;
+  }
+  .shop-tab {
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  .shop-tab:hover { color: var(--text); }
+  .shop-tab.active { color: var(--red); border-bottom-color: var(--red); }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* building/upgrade cards */
+  .shop-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-bottom: 1px solid #0f0f1e;
+    cursor: pointer;
+    transition: background 0.12s;
+    position: relative;
+    overflow: hidden;
+  }
+  .shop-item::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--red);
+    transform: scaleY(0);
+    transition: transform 0.2s;
+  }
+  .shop-item:hover::before { transform: scaleY(1); }
+  .shop-item:hover { background: rgba(255,42,42,0.04); }
+  .shop-item.can-afford:hover { background: rgba(255,42,42,0.08); }
+  .shop-item.cant-afford { opacity: 0.45; cursor: not-allowed; }
+  .shop-item.cant-afford:hover { background: transparent; }
+  .shop-item.cant-afford:hover::before { transform: scaleY(0); }
+  .shop-item.purchased { opacity: 0.3; cursor: not-allowed; }
+
+  .shop-item .si-icon { font-size: 1.6rem; width: 32px; text-align: center; flex-shrink: 0; }
+  .shop-item .si-info { flex: 1; min-width: 0; }
+  .shop-item .si-name { font-size: 0.82rem; font-weight: 700; color: #bbb; }
+  .shop-item .si-desc { font-size: 0.72rem; color: var(--text-dim); }
+  .shop-item .si-right { text-align: right; flex-shrink: 0; }
+  .shop-item .si-cost {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--gold);
+  }
+  .shop-item .si-owned {
+    font-size: 0.68rem;
+    color: var(--text-dim);
+  }
+
+  /* bought flash */
+  .shop-item.buy-flash { animation: buyFlash 0.3s ease; }
+  @keyframes buyFlash {
+    0%   { background: rgba(255,215,0,0.2); }
+    100% { background: transparent; }
+  }
+
+  /* milestone banner */
+  #milestone-banner {
+    position: fixed;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #1a1400, #2a2000);
+    border: 2px solid var(--gold);
+    border-radius: 8px;
+    padding: 12px 28px;
+    font-family: 'Orbitron', monospace;
+    font-size: 1rem;
+    color: var(--gold);
+    text-shadow: 0 0 20px rgba(255,215,0,0.5);
+    z-index: 1000;
+    text-align: center;
+    box-shadow: 0 0 40px rgba(255,215,0,0.2);
+    display: none;
+    animation: bannerIn 0.4s ease;
+  }
+  @keyframes bannerIn { from { opacity:0; top: 80px; } to { opacity:1; top: 60px; } }
+  #milestone-banner .m-sub { font-family: 'Rajdhani', sans-serif; font-size: 0.8rem; color: #aa9900; margin-top: 2px; }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <h1>&#x1F52B; GUN CLICKER</h1>
+  <div class="header-stats">
+    <div class="header-stat">
+      <div class="label">Total Earned</div>
+      <div class="value" id="hdr-total">$0</div>
+    </div>
+    <div class="header-stat">
+      <div class="label">Per Second</div>
+      <div class="value" id="hdr-dps">0/s</div>
+    </div>
+    <div class="header-stat">
+      <div class="label">Per Click</div>
+      <div class="value" id="hdr-cpc">1</div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- LEFT PANEL -->
+  <div class="panel" id="panel-left">
+    <div class="panel-title">Arsenal</div>
+    <div class="stat-block">
+      <div class="stat-row"><span class="s-label">Money</span><span class="s-val gold" id="stat-money">$0</span></div>
+      <div class="stat-row"><span class="s-label">Total Clicks</span><span class="s-val" id="stat-clicks">0</span></div>
+      <div class="stat-row"><span class="s-label">Buildings</span><span class="s-val" id="stat-buildings">0</span></div>
+      <div class="stat-row"><span class="s-label">Upgrades</span><span class="s-val" id="stat-upgrades">0</span></div>
+    </div>
+    <div class="panel-title" style="margin-top:0;">Deployed</div>
+    <div id="owned-list"></div>
+    <div class="panel-title">Intel</div>
+    <div class="notif-area" id="notif-area"></div>
+  </div>
+
+  <!-- CENTER PANEL -->
+  <div id="panel-center">
+    <div class="money-big" id="money-display">$0</div>
+    <div class="dps-label" id="dps-display">0 per second</div>
+    <div style="position:relative; display:flex; align-items:center; justify-content:center;">
+      <div id="gun-btn">&#x1F52B;</div>
+    </div>
+    <div class="combo-display" id="combo-display"></div>
+    <div class="click-hint">CLICK TO FIRE</div>
+  </div>
+
+  <!-- RIGHT PANEL: SHOP -->
+  <div class="panel" id="panel-right">
+    <div class="shop-tabs">
+      <div class="shop-tab active" data-tab="buildings">BUILDINGS</div>
+      <div class="shop-tab" data-tab="upgrades">UPGRADES</div>
+    </div>
+    <div class="tab-content active" id="tab-buildings"></div>
+    <div class="tab-content" id="tab-upgrades"></div>
+  </div>
+</main>
+
+<!-- MILESTONE BANNER -->
+<div id="milestone-banner">
+  <div id="milestone-title"></div>
+  <div class="m-sub" id="milestone-sub"></div>
+</div>
+
+<script>
+// ── GAME DATA ──────────────────────────────────────────────────────────────────
+
+const BUILDINGS = [
+  { id:'lookout',   name:'Lookout',        icon:'👁',  baseCost:15,     baseDps:0.1,  desc:'Scout watches the perimeter.' },
+  { id:'pistol',    name:'Pistol Rack',    icon:'🔫',  baseCost:100,    baseDps:0.5,  desc:'Automated pistols fire steadily.' },
+  { id:'rifle',     name:'Rifle Range',    icon:'🎯',  baseCost:500,    baseDps:3,    desc:'Precision rifles on targets.' },
+  { id:'turret',    name:'Auto-Turret',    icon:'🤖',  baseCost:2000,   baseDps:10,   desc:'Heavy automated turret.' },
+  { id:'drone',     name:'Drone Squadron', icon:'🚁',  baseCost:8000,   baseDps:40,   desc:'Aerial drones patrol the skies.' },
+  { id:'tank',      name:'Tank Division',  icon:'🪖',  baseCost:30000,  baseDps:150,  desc:'Heavy armour rolls in.' },
+  { id:'satellite', name:'War Satellite',  icon:'🛰',  baseCost:120000, baseDps:500,  desc:'Orbital strike capability.' },
+  { id:'bunker',    name:'War Bunker',      icon:'🏚',  baseCost:500000, baseDps:2000, desc:'A fortress of firepower.' },
+];
+
+const UPGRADES = [
+  { id:'grip',     name:'Better Grip',      icon:'✋', cost:100,    desc:'+1 click damage',        type:'click', value:1 },
+  { id:'hollow',   name:'Hollow Points',    icon:'💊', cost:500,    desc:'+3 click damage',        type:'click', value:3 },
+  { id:'trigger',  name:'Speed Trigger',    icon:'⚡', cost:2000,   desc:'+5 click damage',        type:'click', value:5 },
+  { id:'burst',    name:'Burst Fire',       icon:'💥', cost:8000,   desc:'+15 click damage',       type:'click', value:15 },
+  { id:'armour',   name:'Dragon Rounds',    icon:'🐉', cost:50000,  desc:'+50 click damage',       type:'click', value:50 },
+  { id:'oiler',    name:'Auto Oiler',       icon:'🛢', cost:200,    desc:'Lookouts x2 DPS',        type:'mult', building:'lookout' },
+  { id:'mags',     name:'Extended Mags',    icon:'📦', cost:1000,   desc:'Pistol Racks x2 DPS',    type:'mult', building:'pistol' },
+  { id:'scope',    name:'Sniper Scope',     icon:'🔭', cost:5000,   desc:'Rifle Ranges x2 DPS',    type:'mult', building:'rifle' },
+  { id:'ai',       name:'AI Targeting',     icon:'🧠', cost:20000,  desc:'Auto-Turrets x2 DPS',    type:'mult', building:'turret' },
+  { id:'stealth',  name:'Stealth Coating',  icon:'👻', cost:80000,  desc:'Drone Squads x2 DPS',    type:'mult', building:'drone' },
+  { id:'reactive', name:'Reactive Armour',  icon:'🛡', cost:300000, desc:'Tank Divs x2 DPS',       type:'mult', building:'tank' },
+  { id:'laser',    name:'Laser Guidance',   icon:'🔴', cost:1000000,desc:'War Sats x2 DPS',        type:'mult', building:'satellite' },
+];
+
+const MILESTONES = [
+  { at:100,       title:'First Blood',       sub:'100 damage dealt!' },
+  { at:1000,      title:'Rookie Shooter',    sub:'1,000 damage dealt!' },
+  { at:10000,     title:'Veteran Operator',  sub:'10,000 damage!' },
+  { at:100000,    title:'Elite Marksman',    sub:'100,000 damage — legend!' },
+  { at:1000000,   title:'One-Man Army',      sub:'1,000,000! Unstoppable.' },
+  { at:10000000,  title:'War Machine',       sub:'10M. Nothing survives.' },
+  { at:100000000, title:'God of War',        sub:'100M. You are inevitable.' },
+];
+
+// ── GAME STATE ─────────────────────────────────────────────────────────────────
+
+const G = {
+  money: 0,
+  totalEarned: 0,
+  clickDamage: 1,
+  totalClicks: 0,
+  combo: 0,
+  lastClickTime: 0,
+  buildings: {},
+  upgrades: new Set(),
+  milestonesHit: new Set(),
+  notifications: [],
+};
+BUILDINGS.forEach(b => G.buildings[b.id] = 0);
+
+// ── HELPERS ────────────────────────────────────────────────────────────────────
+
+function fmt(n) {
+  n = Math.floor(n);
+  if (n >= 1e12) return (n/1e12).toFixed(2) + 'T';
+  if (n >= 1e9)  return (n/1e9).toFixed(2) + 'B';
+  if (n >= 1e6)  return (n/1e6).toFixed(2) + 'M';
+  if (n >= 1e3)  return (n/1e3).toFixed(1) + 'K';
+  return n.toString();
+}
+
+function buildingCost(b) {
+  return Math.floor(b.baseCost * Math.pow(1.15, G.buildings[b.id]));
+}
+
+function buildingDps(b) {
+  let dps = b.baseDps;
+  UPGRADES.forEach(u => {
+    if (u.type === 'mult' && u.building === b.id && G.upgrades.has(u.id)) dps *= 2;
+  });
+  return dps * G.buildings[b.id];
+}
+
+function totalDps() {
+  return BUILDINGS.reduce((sum, b) => sum + buildingDps(b), 0);
+}
+
+function addNotif(msg, type = 'normal') {
+  G.notifications.unshift({ msg, type });
+  if (G.notifications.length > 6) G.notifications.pop();
+  renderNotifs();
+}
+
+// ── RENDER ─────────────────────────────────────────────────────────────────────
+
+function renderMoney() {
+  const m = '$' + fmt(G.money);
+  document.getElementById('money-display').textContent = m;
+  document.getElementById('stat-money').textContent = m;
+  document.getElementById('hdr-total').textContent = '$' + fmt(G.totalEarned);
+}
+
+function renderStats() {
+  const dps = totalDps();
+  document.getElementById('dps-display').textContent = dps.toFixed(1) + ' per second';
+  document.getElementById('hdr-dps').textContent = dps.toFixed(1) + '/s';
+  document.getElementById('hdr-cpc').textContent = G.clickDamage;
+  document.getElementById('stat-clicks').textContent = fmt(G.totalClicks);
+  document.getElementById('stat-buildings').textContent = BUILDINGS.reduce((s,b)=>s+G.buildings[b.id],0);
+  document.getElementById('stat-upgrades').textContent = G.upgrades.size;
+}
+
+function renderOwnedBuildings() {
+  const el = document.getElementById('owned-list');
+  const owned = BUILDINGS.filter(b => G.buildings[b.id] > 0);
+  if (owned.length === 0) {
+    el.innerHTML = '<div style="padding:10px 14px; color:#333355; font-size:0.8rem;">None deployed yet.</div>';
+    return;
+  }
+  el.innerHTML = owned.map(b => `
+    <div class="owned-building">
+      <div class="ob-icon">${b.icon}</div>
+      <div class="ob-info">
+        <div class="ob-name">${b.name}</div>
+        <div class="ob-dps">${buildingDps(b).toFixed(1)} DPS</div>
+      </div>
+      <div class="ob-count">${G.buildings[b.id]}</div>
+    </div>
+  `).join('');
+}
+
+function renderShop() {
+  // Buildings
+  document.getElementById('tab-buildings').innerHTML = BUILDINGS.map(b => {
+    const cost = buildingCost(b);
+    const owned = G.buildings[b.id];
+    const afford = G.money >= cost;
+    return `
+      <div class="shop-item ${afford ? 'can-afford' : 'cant-afford'}" onclick="buyBuilding('${b.id}')">
+        <div class="si-icon">${b.icon}</div>
+        <div class="si-info">
+          <div class="si-name">${b.name}</div>
+          <div class="si-desc">${b.desc}</div>
+        </div>
+        <div class="si-right">
+          <div class="si-cost">$${fmt(cost)}</div>
+          <div class="si-owned">owned: ${owned}</div>
+        </div>
+      </div>`;
+  }).join('');
+
+  // Upgrades
+  document.getElementById('tab-upgrades').innerHTML = UPGRADES.map(u => {
+    const bought = G.upgrades.has(u.id);
+    const afford = G.money >= u.cost;
+    return `
+      <div class="shop-item ${bought ? 'purchased' : afford ? 'can-afford' : 'cant-afford'}" onclick="buyUpgrade('${u.id}')">
+        <div class="si-icon">${u.icon}</div>
+        <div class="si-info">
+          <div class="si-name">${u.name}</div>
+          <div class="si-desc">${u.desc}</div>
+        </div>
+        <div class="si-right">
+          <div class="si-cost">${bought ? '✓' : '$'+fmt(u.cost)}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderNotifs() {
+  document.getElementById('notif-area').innerHTML = G.notifications.map(n =>
+    `<div class="notif ${n.type === 'milestone' ? 'milestone' : ''}">${n.msg}</div>`
+  ).join('');
+}
+
+// ── ACTIONS ────────────────────────────────────────────────────────────────────
+
+function buyBuilding(id) {
+  const b = BUILDINGS.find(x => x.id === id);
+  const cost = buildingCost(b);
+  if (G.money < cost) return;
+  G.money -= cost;
+  G.buildings[id]++;
+  addNotif(`Deployed ${b.icon} ${b.name} (×${G.buildings[id]})`);
+  renderAll();
+  // flash
+  const items = document.querySelectorAll('#tab-buildings .shop-item');
+  const idx = BUILDINGS.findIndex(x=>x.id===id);
+  if (items[idx]) { items[idx].classList.add('buy-flash'); setTimeout(()=>items[idx].classList.remove('buy-flash'),300); }
+}
+
+function buyUpgrade(id) {
+  if (G.upgrades.has(id)) return;
+  const u = UPGRADES.find(x => x.id === id);
+  if (G.money < u.cost) return;
+  G.money -= u.cost;
+  G.upgrades.add(id);
+  if (u.type === 'click') G.clickDamage += u.value;
+  addNotif(`Unlocked ${u.icon} ${u.name}!`);
+  renderAll();
+}
+
+function spawnFloat(x, y, text, cls = '') {
+  const el = document.createElement('div');
+  el.className = 'float-num ' + cls;
+  el.textContent = text;
+  el.style.left = (x - 20) + 'px';
+  el.style.top = (y - 20) + 'px';
+  document.getElementById('panel-center').appendChild(el);
+  setTimeout(() => el.remove(), 900);
+}
+
+function spawnRing() {
+  const center = document.getElementById('panel-center');
+  const ring = document.createElement('div');
+  ring.className = 'ring-pulse';
+  ring.style.position = 'absolute';
+  // center it
+  const btn = document.getElementById('gun-btn');
+  const cr = btn.getBoundingClientRect();
+  const pr = center.getBoundingClientRect();
+  ring.style.left = (cr.left - pr.left) + 'px';
+  ring.style.top  = (cr.top  - pr.top)  + 'px';
+  center.appendChild(ring);
+  setTimeout(() => ring.remove(), 500);
+}
+
+function checkMilestones() {
+  MILESTONES.forEach(m => {
+    if (G.totalEarned >= m.at && !G.milestonesHit.has(m.at)) {
+      G.milestonesHit.add(m.at);
+      showMilestoneBanner(m.title, m.sub);
+      addNotif(`🏅 ${m.title}: ${m.sub}`, 'milestone');
+    }
+  });
+}
+
+function showMilestoneBanner(title, sub) {
+  const b = document.getElementById('milestone-banner');
+  document.getElementById('milestone-title').textContent = '🏅 ' + title;
+  document.getElementById('milestone-sub').textContent = sub;
+  b.style.display = 'block';
+  clearTimeout(b._timer);
+  b._timer = setTimeout(() => b.style.display = 'none', 3500);
+}
+
+function renderAll() {
+  renderMoney();
+  renderStats();
+  renderOwnedBuildings();
+  renderShop();
+}
+
+// ── GUN CLICK ──────────────────────────────────────────────────────────────────
+
+const gunBtn = document.getElementById('gun-btn');
+
+gunBtn.addEventListener('click', function(e) {
+  const now = Date.now();
+  if (now - G.lastClickTime < 800) {
+    G.combo++;
+  } else {
+    G.combo = 1;
+  }
+  G.lastClickTime = now;
+
+  const comboBonus = Math.max(1, Math.floor(G.combo / 5));
+  const damage = G.clickDamage * comboBonus;
+  G.money += damage;
+  G.totalEarned += damage;
+  G.totalClicks++;
+
+  // floating number
+  const rect = gunBtn.getBoundingClientRect();
+  const pRect = document.getElementById('panel-center').getBoundingClientRect();
+  const rx = e.clientX - pRect.left + (Math.random()*60-30);
+  const ry = e.clientY - pRect.top  + (Math.random()*20-10);
+  spawnFloat(rx, ry, '+' + fmt(damage));
+  if (G.combo >= 10 && G.combo % 5 === 0) {
+    spawnFloat(rx, ry - 35, 'COMBO x' + comboBonus + '!', 'combo');
+  }
+
+  spawnRing();
+
+  // click anim
+  gunBtn.classList.add('clicked');
+  setTimeout(() => gunBtn.classList.remove('clicked'), 100);
+
+  // combo display
+  const cd = document.getElementById('combo-display');
+  if (G.combo >= 5) {
+    cd.textContent = '🔥 COMBO x' + G.combo;
+    clearTimeout(cd._timer);
+    cd._timer = setTimeout(() => cd.textContent = '', 1500);
+  }
+
+  checkMilestones();
+  renderAll();
+});
+
+// ── PASSIVE INCOME LOOP ────────────────────────────────────────────────────────
+
+let lastTick = Date.now();
+function gameLoop() {
+  const now = Date.now();
+  const dt = (now - lastTick) / 1000;
+  lastTick = now;
+  const income = totalDps() * dt;
+  if (income > 0) {
+    G.money += income;
+    G.totalEarned += income;
+    checkMilestones();
+    renderMoney();
+    renderStats();
+  }
+  requestAnimationFrame(gameLoop);
+}
+
+// Render shop periodically (less often to avoid flicker)
+setInterval(renderShop, 500);
+
+// ── TABS ───────────────────────────────────────────────────────────────────────
+
+document.querySelectorAll('.shop-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.shop-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+// ── INIT ───────────────────────────────────────────────────────────────────────
+
+renderAll();
+gameLoop();
+</script>
+</body>
+</html>

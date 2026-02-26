@@ -752,6 +752,46 @@
     width: 100%;
     text-align: center;
   }
+
+  /* ── SKINS ── */
+  .skin-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-bottom: 1px solid #0f0f1e;
+    cursor: pointer;
+    transition: background 0.15s;
+    position: relative;
+  }
+  .skin-card:hover { background: rgba(255,42,42,0.05); }
+  .skin-card.locked { opacity: 0.4; cursor: not-allowed; }
+  .skin-card.locked:hover { background: transparent; }
+  .skin-card.active-skin { background: rgba(255,42,42,0.08); border-left: 3px solid var(--red); }
+  .skin-preview {
+    width: 70px;
+    height: 44px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    flex-shrink: 0;
+    border: 1px solid #1e1e3a;
+  }
+  .skin-info { flex: 1; }
+  .skin-name { font-size: 0.85rem; font-weight: 700; color: #bbb; font-family: 'Orbitron', monospace; }
+  .skin-unlock { font-size: 0.72rem; color: var(--text-dim); margin-top: 2px; }
+  .skin-badge {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.6rem;
+    padding: 2px 6px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+  .skin-badge.unlocked { background: rgba(255,42,42,0.1); color: var(--red); border: 1px solid var(--red); }
+  .skin-badge.equipped { background: rgba(255,215,0,0.1); color: var(--gold); border: 1px solid var(--gold); }
+  .skin-badge.locked-badge { background: rgba(80,80,80,0.2); color: #444; border: 1px solid #333; }
 </style>
 </head>
 <body>
@@ -830,9 +870,11 @@
     <div class="shop-tabs">
       <div class="shop-tab active" data-tab="buildings">BUILDINGS</div>
       <div class="shop-tab" data-tab="upgrades">UPGRADES</div>
+      <div class="shop-tab" data-tab="skins">SKINS</div>
     </div>
     <div class="tab-content active" id="tab-buildings"></div>
     <div class="tab-content" id="tab-upgrades"></div>
+    <div class="tab-content" id="tab-skins"></div>
   </div>
 </main>
 
@@ -881,6 +923,18 @@ const MILESTONES = [
   { at:100000000, title:'God of War',        sub:'100M. You are inevitable.' },
 ];
 
+
+// ── SKINS ──────────────────────────────────────────────────────────────────────
+const SKINS = [
+  { id:'default',  name:'Default',       unlockAt:0,        unlockDesc:'Starting skin',          filter:'drop-shadow(0 0 10px rgba(255,42,42,0.6))' },
+  { id:'gold',     name:'Gold Plated',   unlockAt:1000,     unlockDesc:'Earn $1,000 total',       filter:'drop-shadow(0 0 12px rgba(255,215,0,0.8)) sepia(0.4) saturate(2) hue-rotate(5deg)' },
+  { id:'neon',     name:'Neon Green',    unlockAt:10000,    unlockDesc:'Earn $10,000 total',      filter:'drop-shadow(0 0 14px rgba(0,255,100,0.9)) hue-rotate(90deg) saturate(2)' },
+  { id:'ice',      name:'Ice Blue',      unlockAt:100000,   unlockDesc:'Earn $100,000 total',     filter:'drop-shadow(0 0 14px rgba(0,180,255,0.9)) hue-rotate(190deg) saturate(1.5) brightness(1.2)' },
+  { id:'blood',    name:'Blood Red',     unlockAt:500000,   unlockDesc:'Earn $500,000 total',     filter:'drop-shadow(0 0 16px rgba(255,0,0,1)) sepia(1) saturate(5) hue-rotate(330deg)' },
+  { id:'ghost',    name:'Ghost',         unlockAt:1000000,  unlockDesc:'Earn $1,000,000 total',   filter:'drop-shadow(0 0 18px rgba(255,255,255,0.9)) brightness(0) invert(1) opacity(0.7)' },
+  { id:'rainbow',  name:'Rainbow',       unlockAt:10000000, unlockDesc:'Earn $10,000,000 total',  filter:'drop-shadow(0 0 20px rgba(255,100,255,1)) hue-rotate(var(--hue,0deg)) saturate(3)' },
+];
+
 // ── GAME STATE ─────────────────────────────────────────────────────────────────
 
 const G = {
@@ -893,6 +947,7 @@ const G = {
   buildings: {},
   upgrades: {},  // id -> count of times purchased
   milestonesHit: new Set(),
+  activeSkin: 'default',
   notifications: [],
   rebirths: 0,
   rebirthMult: 1.0,
@@ -1011,6 +1066,55 @@ function renderShop() {
         </div>
       </div>`;
   }).join('');
+}
+
+function applySkin(skinId) {
+  const skin = SKINS.find(s => s.id === skinId);
+  if (!skin) return;
+  const img = document.querySelector('#gun-btn img');
+  if (img) {
+    if (skinId === 'rainbow') {
+      img.style.filter = 'drop-shadow(0 0 20px rgba(255,100,255,1)) hue-rotate(0deg) saturate(3)';
+      // animate hue
+      let hue = 0;
+      clearInterval(window._rainbowInterval);
+      window._rainbowInterval = setInterval(() => {
+        hue = (hue + 3) % 360;
+        img.style.filter = `drop-shadow(0 0 20px rgba(255,100,255,1)) hue-rotate(${hue}deg) saturate(3)`;
+      }, 50);
+    } else {
+      clearInterval(window._rainbowInterval);
+      img.style.filter = skin.filter;
+    }
+  }
+}
+
+function renderSkins() {
+  document.getElementById('tab-skins').innerHTML = SKINS.map(sk => {
+    const unlocked = G.totalEarned >= sk.unlockAt;
+    const active = G.activeSkin === sk.id;
+    return `
+      <div class="skin-card ${unlocked ? '' : 'locked'} ${active ? 'active-skin' : ''}" onclick="equipSkin('${sk.id}')">
+        <div class="skin-preview" style="background:#0a0a14;">
+          <span style="font-size:1.5rem; filter:${sk.filter.replace('var(--hue,0deg)','45deg')}">🔫</span>
+        </div>
+        <div class="skin-info">
+          <div class="skin-name">${sk.name}</div>
+          <div class="skin-unlock">${unlocked ? 'Unlocked' : sk.unlockDesc}</div>
+        </div>
+        <div class="skin-badge ${active ? 'equipped' : unlocked ? 'unlocked' : 'locked-badge'}">
+          ${active ? 'EQUIPPED' : unlocked ? 'OWNED' : 'LOCKED'}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function equipSkin(id) {
+  const skin = SKINS.find(s => s.id === id);
+  if (!skin || G.totalEarned < skin.unlockAt) return;
+  G.activeSkin = id;
+  applySkin(id);
+  renderSkins();
 }
 
 function renderNotifs() {
@@ -1161,6 +1265,7 @@ function renderAll() {
   renderStats();
   renderOwnedBuildings();
   renderShop();
+  renderSkins();
 }
 
 // ── GUN CLICK ──────────────────────────────────────────────────────────────────
@@ -1279,6 +1384,7 @@ function doRebirth() {
   G.notifications = [];
   G.milestonesHit = new Set();
   bulletHoles = [];
+  applySkin(G.activeSkin);
   document.getElementById('bullet-holes').innerHTML = '';
   closeRebirth();
   document.getElementById('rebirth-btn').style.display = 'none';
@@ -1383,6 +1489,7 @@ function adminHardReset() {
 // ── INIT ───────────────────────────────────────────────────────────────────────
 
 renderAll();
+applySkin(G.activeSkin);
 gameLoop();
 </script>
 

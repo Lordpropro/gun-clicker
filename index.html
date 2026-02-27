@@ -792,11 +792,351 @@
   .skin-badge.unlocked { background: rgba(255,42,42,0.1); color: var(--red); border: 1px solid var(--red); }
   .skin-badge.equipped { background: rgba(255,215,0,0.1); color: var(--gold); border: 1px solid var(--gold); }
   .skin-badge.locked-badge { background: rgba(80,80,80,0.2); color: #444; border: 1px solid #333; }
+
+  /* ── SAVE SCREEN ── */
+  #save-screen {
+    position: fixed;
+    inset: 0;
+    background: #07070e;
+    z-index: 5000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+  .save-screen-inner {
+    width: 480px;
+    text-align: center;
+  }
+  .save-screen-inner h1 {
+    font-family: 'Orbitron', monospace;
+    font-size: 2.2rem;
+    color: var(--red);
+    text-shadow: 0 0 30px var(--red-glow);
+    letter-spacing: 6px;
+    margin-bottom: 6px;
+  }
+  .save-screen-inner .save-subtitle {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    letter-spacing: 3px;
+    margin-bottom: 32px;
+    font-family: 'Rajdhani', sans-serif;
+  }
+  .name-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 28px;
+    align-items: center;
+  }
+  .name-row label {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    white-space: nowrap;
+  }
+  #player-name-input {
+    flex: 1;
+    background: #0e0e1e;
+    border: 1px solid #1e1e3a;
+    border-radius: 4px;
+    color: #aaaacc;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.9rem;
+    padding: 9px 14px;
+    outline: none;
+    letter-spacing: 2px;
+    transition: border-color 0.2s;
+  }
+  #player-name-input:focus { border-color: var(--red); }
+
+  .slots-label {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    letter-spacing: 3px;
+    margin-bottom: 14px;
+    text-align: left;
+  }
+  .save-slots {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .save-slot {
+    background: #0e0e1e;
+    border: 1px solid #1e1e3a;
+    border-radius: 6px;
+    padding: 14px 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: all 0.15s;
+    text-align: left;
+  }
+  .save-slot:hover { border-color: var(--red); background: rgba(255,42,42,0.05); }
+  .save-slot.selected { border-color: var(--red); background: rgba(255,42,42,0.08); box-shadow: 0 0 16px rgba(255,42,42,0.15); }
+  .slot-num {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: #1e1e3a;
+    width: 36px;
+    text-align: center;
+    transition: color 0.15s;
+  }
+  .save-slot.selected .slot-num,
+  .save-slot:hover .slot-num { color: var(--red); }
+  .slot-info { flex: 1; }
+  .slot-name {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.8rem;
+    color: #aaa;
+    font-weight: 700;
+    margin-bottom: 3px;
+  }
+  .slot-details {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+  }
+  .slot-badge {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.6rem;
+    padding: 3px 8px;
+    border-radius: 3px;
+  }
+  .slot-badge.empty { border: 1px solid #1e1e3a; color: #333355; }
+  .slot-badge.has-save { border: 1px solid #2a4a2a; color: #4a8a4a; background: rgba(74,138,74,0.1); }
+
+  .save-enter-btn {
+    width: 100%;
+    padding: 13px;
+    background: linear-gradient(135deg, #1a0000, #2a0000);
+    border: 2px solid var(--red);
+    border-radius: 6px;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--red);
+    cursor: pointer;
+    letter-spacing: 3px;
+    transition: all 0.2s;
+    text-shadow: 0 0 10px var(--red-glow);
+  }
+  .save-enter-btn:hover {
+    background: linear-gradient(135deg, #2a0000, #3a0000);
+    box-shadow: 0 0 30px rgba(255,42,42,0.3);
+    color: #ff6666;
+  }
+  .save-enter-btn:disabled { opacity: 0.3; cursor: not-allowed; box-shadow: none; }
+  .save-error {
+    color: var(--red);
+    font-size: 0.75rem;
+    font-family: 'Rajdhani', sans-serif;
+    min-height: 20px;
+    margin-bottom: 10px;
+  }
+
+  /* delete slot btn */
+  .slot-delete {
+    background: transparent;
+    border: 1px solid #2a1a1a;
+    border-radius: 3px;
+    color: #442222;
+    font-size: 0.65rem;
+    padding: 3px 7px;
+    cursor: pointer;
+    font-family: 'Rajdhani', sans-serif;
+    transition: all 0.15s;
+  }
+  .slot-delete:hover { border-color: #aa2222; color: #ff4444; background: rgba(255,42,42,0.05); }
+
+  /* ── LEADERBOARD ── */
+  #lb-btn {
+    background: transparent;
+    border: 1px solid #1e1e3a;
+    border-radius: 4px;
+    color: var(--text-dim);
+    font-family: 'Orbitron', monospace;
+    font-size: 0.6rem;
+    padding: 6px 12px;
+    cursor: pointer;
+    letter-spacing: 2px;
+    transition: all 0.2s;
+  }
+  #lb-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+  #lb-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.92);
+    z-index: 3000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  #lb-modal.show { display: flex; }
+  .lb-box {
+    background: linear-gradient(135deg, #08080f, #0e0e1a);
+    border: 1px solid #2a2a3a;
+    border-radius: 10px;
+    padding: 28px 32px;
+    width: 480px;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  .lb-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  .lb-header h2 {
+    font-family: 'Orbitron', monospace;
+    font-size: 1rem;
+    color: var(--gold);
+    letter-spacing: 3px;
+    text-shadow: 0 0 15px rgba(255,215,0,0.4);
+  }
+  .lb-close {
+    background: transparent;
+    border: 1px solid #1e1e3a;
+    border-radius: 4px;
+    color: #444;
+    font-size: 0.7rem;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-family: 'Rajdhani', sans-serif;
+    transition: all 0.15s;
+  }
+  .lb-close:hover { border-color: #555; color: #888; }
+
+  .lb-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+  .lb-tab {
+    flex: 1;
+    padding: 7px;
+    text-align: center;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    cursor: pointer;
+    border: 1px solid #1e1e3a;
+    border-radius: 4px;
+    transition: all 0.15s;
+  }
+  .lb-tab:hover { color: var(--text); border-color: #333; }
+  .lb-tab.active { color: var(--gold); border-color: var(--gold); background: rgba(255,215,0,0.05); }
+
+  .lb-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-bottom: 1px solid #0f0f1e;
+    transition: background 0.1s;
+  }
+  .lb-row:hover { background: rgba(255,255,255,0.02); }
+  .lb-row.me { background: rgba(255,215,0,0.04); border-left: 2px solid var(--gold); }
+  .lb-rank {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.9rem;
+    font-weight: 900;
+    width: 28px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .lb-rank.gold   { color: #ffd700; text-shadow: 0 0 10px rgba(255,215,0,0.5); }
+  .lb-rank.silver { color: #c0c0c0; }
+  .lb-rank.bronze { color: #cd7f32; }
+  .lb-rank.other  { color: #444; }
+  .lb-name { flex: 1; font-size: 0.85rem; font-weight: 700; color: #bbb; }
+  .lb-name.me-name { color: var(--gold); }
+  .lb-val {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    text-align: right;
+  }
+  .lb-val .main { color: #aaa; font-size: 0.85rem; }
+  .lb-val .sub { font-size: 0.65rem; color: #444; margin-top: 1px; }
+
+  .lb-loading {
+    text-align: center;
+    padding: 32px;
+    color: var(--text-dim);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.9rem;
+  }
+  .lb-empty {
+    text-align: center;
+    padding: 32px;
+    color: #333;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+  }
+  .lb-submit-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid #1a1a2e;
+    align-items: center;
+  }
+  .lb-submit-row span {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.8rem;
+    color: #444;
+    flex: 1;
+  }
+  .lb-submit-btn {
+    background: linear-gradient(135deg, #1a1400, #2a2000);
+    border: 1px solid var(--gold);
+    border-radius: 4px;
+    color: var(--gold);
+    font-family: 'Orbitron', monospace;
+    font-size: 0.65rem;
+    padding: 7px 16px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: all 0.15s;
+  }
+  .lb-submit-btn:hover { box-shadow: 0 0 15px rgba(255,215,0,0.2); }
+  .lb-submit-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 </style>
 </head>
 <body>
 
 <!-- HEADER -->
+
+<!-- SAVE / LOAD SCREEN -->
+<div id="save-screen">
+  <div class="save-screen-inner">
+    <h1>GUN CLICKER</h1>
+    <div class="save-subtitle">ENTER YOUR NAME &amp; SELECT A SAVE SLOT</div>
+
+    <div class="name-row">
+      <label>SOLDIER NAME</label>
+      <input type="text" id="player-name-input" maxlength="16" placeholder="Enter name..." autocomplete="off" />
+    </div>
+
+    <div class="slots-label">SELECT SAVE SLOT</div>
+    <div class="save-slots" id="save-slots-list"></div>
+
+    <div class="save-error" id="save-error"></div>
+    <button class="save-enter-btn" id="save-enter-btn" onclick="enterGame()">ENTER GAME</button>
+  </div>
+</div>
+
 <header>
   <h1>&#x1F52B; GUN CLICKER</h1>
   <div class="header-stats">
@@ -812,6 +1152,7 @@
       <div class="label">Per Click</div>
       <div class="value" id="hdr-cpc">1</div>
     </div>
+    <button id="lb-btn" onclick="openLeaderboard()">🏆 LEADERBOARD</button>
   </div>
 </header>
 
@@ -1131,6 +1472,7 @@ function buyBuilding(id) {
   if (G.money < cost) return;
   G.money -= cost;
   G.buildings[id]++;
+  saveGame();
   addNotif(`Deployed ${b.icon} ${b.name} (×${G.buildings[id]})`);
   renderAll();
   // flash
@@ -1151,6 +1493,7 @@ function buyUpgrade(id) {
   G.money -= cost;
   G.upgrades[id] = count + 1;
   if (u.type === 'click') G.clickDamage += u.value;
+  saveGame();
   addNotif(`${u.icon} ${u.name} upgraded to Lv${G.upgrades[id]}!`);
   renderAll();
 }
@@ -1390,6 +1733,7 @@ function doRebirth() {
   document.getElementById('rebirth-btn').style.display = 'none';
   // Update header with prestige badge
   updatePrestigeBadge();
+  saveGame();
   addNotif(`🔥 Rebirth #${G.rebirths}! ${Math.round((G.rebirthMult-1)*100)}% money bonus active!`, 'milestone');
   renderAll();
 }
@@ -1406,6 +1750,278 @@ function updatePrestigeBadge() {
   }
 }
 
+
+
+
+// ── LEADERBOARD ────────────────────────────────────────────────────────────────
+
+const JSONBIN_BIN_ID = '69a1365743b1c97be9a29926';
+const JSONBIN_API_KEY = '$2a$10$uKP.Uta3lqLmGZVuLf/gDuQEzCfZvgYAtqDDRrDR.PkvTjMpQXx5O';
+const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
+
+let lbCurrentTab = 'earned';
+let lbData = [];
+let lbLastSubmit = 0;
+
+function openLeaderboard() {
+  if (!playerName) return;
+  document.getElementById('lb-modal').classList.add('show');
+  fetchLeaderboard();
+}
+function closeLb() {
+  document.getElementById('lb-modal').classList.remove('show');
+}
+function switchLbTab(tab) {
+  lbCurrentTab = tab;
+  document.querySelectorAll('.lb-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.lbtab === tab);
+  });
+  renderLbList();
+}
+
+async function fetchLeaderboard() {
+  document.getElementById('lb-list').innerHTML = '<div class="lb-loading">Loading scores...</div>';
+  try {
+    const res = await fetch(JSONBIN_URL + '/latest', {
+      headers: { 'X-Master-Key': JSONBIN_API_KEY }
+    });
+    const json = await res.json();
+    lbData = json.record.scores || [];
+  } catch(e) {
+    lbData = [];
+    document.getElementById('lb-list').innerHTML = '<div class="lb-empty">FAILED TO LOAD<br><br>Check your connection.</div>';
+    return;
+  }
+  renderLbList();
+}
+
+function renderLbList() {
+  const list = document.getElementById('lb-list');
+  if (!lbData.length) {
+    list.innerHTML = '<div class="lb-empty">NO SCORES YET<br><br>Be the first!</div>';
+    return;
+  }
+  const sorted = [...lbData].sort((a, b) => {
+    if (lbCurrentTab === 'earned')   return b.totalEarned - a.totalEarned;
+    if (lbCurrentTab === 'clicks')   return b.totalClicks - a.totalClicks;
+    if (lbCurrentTab === 'rebirths') return b.rebirths - a.rebirths;
+    return 0;
+  }).slice(0, 20);
+
+  const rankClass = i => i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : 'other';
+  const rankLabel = i => i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i+1}`;
+
+  list.innerHTML = sorted.map((entry, i) => {
+    const isMe = entry.name === playerName;
+    const mainVal = lbCurrentTab === 'earned'   ? '$' + fmt(entry.totalEarned)
+                  : lbCurrentTab === 'clicks'   ? fmt(entry.totalClicks) + ' clicks'
+                  : entry.rebirths + ' rebirths';
+    const subVal  = lbCurrentTab === 'earned'   ? entry.rebirths + ' rebirth' + (entry.rebirths !== 1 ? 's' : '')
+                  : lbCurrentTab === 'clicks'   ? '$' + fmt(entry.totalEarned) + ' earned'
+                  : '$' + fmt(entry.totalEarned) + ' earned';
+    return `
+      <div class="lb-row ${isMe ? 'me' : ''}">
+        <div class="lb-rank ${rankClass(i)}">${rankLabel(i)}</div>
+        <div class="lb-name ${isMe ? 'me-name' : ''}">${entry.name}${isMe ? ' (you)' : ''}</div>
+        <div class="lb-val">
+          <div class="main">${mainVal}</div>
+          <div class="sub">${subVal}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+async function submitScore() {
+  if (!playerName) return;
+  const btn = document.getElementById('lb-submit-btn');
+  const info = document.getElementById('lb-last-submit');
+  btn.disabled = true;
+  info.textContent = 'Submitting...';
+
+  try {
+    // fetch latest first
+    const getRes = await fetch(JSONBIN_URL + '/latest', {
+      headers: { 'X-Master-Key': JSONBIN_API_KEY }
+    });
+    const getJson = await getRes.json();
+    let data = getJson.record.scores || [];
+
+    const idx = data.findIndex(e => e.name === playerName);
+    const entry = {
+      name: playerName,
+      totalEarned: Math.floor(G.totalEarned),
+      totalClicks: G.totalClicks,
+      rebirths: G.rebirths,
+      submittedAt: Date.now(),
+    };
+
+    if (idx >= 0) {
+      data[idx] = {
+        ...data[idx],
+        totalEarned: Math.max(data[idx].totalEarned, entry.totalEarned),
+        totalClicks: Math.max(data[idx].totalClicks, entry.totalClicks),
+        rebirths: Math.max(data[idx].rebirths, entry.rebirths),
+        submittedAt: Date.now(),
+      };
+    } else {
+      data.push(entry);
+    }
+
+    // write back
+    const putRes = await fetch(JSONBIN_URL, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': JSONBIN_API_KEY
+      },
+      body: JSON.stringify({ scores: data })
+    });
+
+    if (!putRes.ok) throw new Error('Write failed');
+
+    lbData = data;
+    renderLbList();
+    info.textContent = 'Score submitted! ✓';
+    lbLastSubmit = Date.now();
+  } catch(e) {
+    info.textContent = 'Failed to submit. Try again.';
+  }
+
+  setTimeout(() => { btn.disabled = false; }, 10000);
+}
+
+// ── SAVE SYSTEM ────────────────────────────────────────────────────────────────
+
+const SAVE_KEY = 'gunclicker_saves';
+let currentSlot = null;
+let playerName = '';
+
+function getSaves() {
+  try { return JSON.parse(localStorage.getItem(SAVE_KEY)) || [null, null, null]; }
+  catch(e) { return [null, null, null]; }
+}
+
+function writeSaves(saves) {
+  localStorage.setItem(SAVE_KEY, JSON.stringify(saves));
+}
+
+function saveGame() {
+  if (currentSlot === null) return;
+  const saves = getSaves();
+  saves[currentSlot] = {
+    name: playerName,
+    savedAt: Date.now(),
+    money: G.money,
+    totalEarned: G.totalEarned,
+    clickDamage: G.clickDamage,
+    totalClicks: G.totalClicks,
+    buildings: G.buildings,
+    upgrades: G.upgrades,
+    rebirths: G.rebirths,
+    rebirthMult: G.rebirthMult,
+    activeSkin: G.activeSkin,
+    milestonesHit: [...G.milestonesHit],
+  };
+  writeSaves(saves);
+}
+
+function loadSlot(slotIdx) {
+  const saves = getSaves();
+  const save = saves[slotIdx];
+  if (!save) return;
+  G.money = save.money || 0;
+  G.totalEarned = save.totalEarned || 0;
+  G.clickDamage = save.clickDamage || 1;
+  G.totalClicks = save.totalClicks || 0;
+  G.buildings = save.buildings || {};
+  BUILDINGS.forEach(b => { if (!(b.id in G.buildings)) G.buildings[b.id] = 0; });
+  G.upgrades = save.upgrades || {};
+  G.rebirths = save.rebirths || 0;
+  G.rebirthMult = save.rebirthMult || 1;
+  G.activeSkin = save.activeSkin || 'default';
+  G.milestonesHit = new Set(save.milestonesHit || []);
+}
+
+function deleteSlot(slotIdx, e) {
+  e.stopPropagation();
+  if (!confirm('Delete save slot ' + (slotIdx+1) + '?')) return;
+  const saves = getSaves();
+  saves[slotIdx] = null;
+  writeSaves(saves);
+  renderSaveSlots();
+}
+
+function renderSaveSlots() {
+  const saves = getSaves();
+  const container = document.getElementById('save-slots-list');
+  container.innerHTML = saves.map((save, i) => {
+    const hasSave = save !== null;
+    const isSelected = currentSlot === i;
+    const details = hasSave
+      ? `$${fmt(save.totalEarned)} earned &nbsp;·&nbsp; ${save.rebirths||0} rebirth${(save.rebirths||0)!==1?'s':''}  &nbsp;·&nbsp; ${new Date(save.savedAt).toLocaleDateString()}`
+      : 'Empty slot';
+    const nameDisplay = hasSave ? save.name : 'Empty';
+    return `
+      <div class="save-slot ${isSelected ? 'selected' : ''}" onclick="selectSlot(${i})">
+        <div class="slot-num">${i+1}</div>
+        <div class="slot-info">
+          <div class="slot-name">${nameDisplay}</div>
+          <div class="slot-details">${details}</div>
+        </div>
+        ${hasSave ? `<button class="slot-delete" onclick="deleteSlot(${i}, event)">DELETE</button>` : ''}
+        <div class="slot-badge ${hasSave ? 'has-save' : 'empty'}">${hasSave ? 'SAVED' : 'NEW'}</div>
+      </div>`;
+  }).join('');
+}
+
+function selectSlot(idx) {
+  currentSlot = idx;
+  // If slot has a save, pre-fill the name
+  const saves = getSaves();
+  if (saves[idx] && saves[idx].name) {
+    document.getElementById('player-name-input').value = saves[idx].name;
+  }
+  renderSaveSlots();
+}
+
+function enterGame() {
+  const nameInput = document.getElementById('player-name-input').value.trim();
+  if (!nameInput) {
+    document.getElementById('save-error').textContent = 'Please enter your soldier name.';
+    return;
+  }
+  if (currentSlot === null) {
+    document.getElementById('save-error').textContent = 'Please select a save slot.';
+    return;
+  }
+  playerName = nameInput;
+  const saves = getSaves();
+  if (saves[currentSlot]) {
+    loadSlot(currentSlot);
+    playerName = saves[currentSlot].name;
+  }
+  document.getElementById('save-screen').style.display = 'none';
+  // Update header greeting
+  const h1 = document.querySelector('header h1');
+  h1.innerHTML = '&#x1F52B; GUN CLICKER <span style="font-size:0.6rem; color:#444466; letter-spacing:1px; vertical-align:middle; margin-left:8px;">' + playerName.toUpperCase() + '</span>';
+  updatePrestigeBadge();
+  renderAll();
+  applySkin(G.activeSkin);
+  updateRebirthBtn();
+  // Auto-save every 30 seconds
+  setInterval(saveGame, 30000);
+}
+
+// Render slots on page load
+document.addEventListener('DOMContentLoaded', () => {
+  renderSaveSlots();
+  document.getElementById('player-name-input').addEventListener('input', () => {
+    document.getElementById('save-error').textContent = '';
+  });
+  document.getElementById('player-name-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') enterGame();
+  });
+});
 
 // ── ADMIN ──────────────────────────────────────────────────────────────────────
 
@@ -1589,6 +2205,26 @@ gameLoop();
 
     <div class="admin-close">
       <button class="admin-btn" onclick="closeAdminPanel()">CLOSE PANEL</button>
+    </div>
+  </div>
+</div>
+
+<!-- LEADERBOARD MODAL -->
+<div id="lb-modal">
+  <div class="lb-box">
+    <div class="lb-header">
+      <h2>🏆 LEADERBOARD</h2>
+      <button class="lb-close" onclick="closeLb()">CLOSE</button>
+    </div>
+    <div class="lb-tabs">
+      <div class="lb-tab active" data-lbtab="earned" onclick="switchLbTab('earned')">TOTAL EARNED</div>
+      <div class="lb-tab" data-lbtab="clicks" onclick="switchLbTab('clicks')">TOTAL CLICKS</div>
+      <div class="lb-tab" data-lbtab="rebirths" onclick="switchLbTab('rebirths')">REBIRTHS</div>
+    </div>
+    <div id="lb-list"><div class="lb-loading">Loading...</div></div>
+    <div class="lb-submit-row">
+      <span id="lb-last-submit">Submit your score to appear on the board.</span>
+      <button class="lb-submit-btn" id="lb-submit-btn" onclick="submitScore()">SUBMIT SCORE</button>
     </div>
   </div>
 </div>

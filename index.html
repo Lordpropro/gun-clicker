@@ -1229,29 +1229,58 @@
 // ── GAME DATA ──────────────────────────────────────────────────────────────────
 
 const BUILDINGS = [
-  { id:'lookout',   name:'Lookout',        icon:'👁',  baseCost:15,     baseDps:0.1,  desc:'Scout watches the perimeter.' },
-  { id:'pistol',    name:'Pistol Rack',    icon:'🔫',  baseCost:100,    baseDps:0.5,  desc:'Automated pistols fire steadily.' },
-  { id:'rifle',     name:'Rifle Range',    icon:'🎯',  baseCost:500,    baseDps:3,    desc:'Precision rifles on targets.' },
-  { id:'turret',    name:'Auto-Turret',    icon:'🤖',  baseCost:2000,   baseDps:10,   desc:'Heavy automated turret.' },
-  { id:'drone',     name:'Drone Squadron', icon:'🚁',  baseCost:8000,   baseDps:40,   desc:'Aerial drones patrol the skies.' },
-  { id:'tank',      name:'Tank Division',  icon:'🪖',  baseCost:30000,  baseDps:150,  desc:'Heavy armour rolls in.' },
-  { id:'satellite', name:'War Satellite',  icon:'🛰',  baseCost:120000, baseDps:500,  desc:'Orbital strike capability.' },
-  { id:'bunker',    name:'War Bunker',      icon:'🏚',  baseCost:500000, baseDps:2000, desc:'A fortress of firepower.' },
+  // type:'dps' = passive income, type:'click' = adds to click damage per owned
+  { id:'scout',      name:'Scout Post',       icon:'👁',  baseCost:15,       type:'dps',   baseDps:0.1,  baseClick:0,  desc:'A scout earns intel — and cash.' },
+  { id:'knuckle',    name:'Knuckle Duster',   icon:'👊',  baseCost:50,       type:'click', baseDps:0,    baseClick:0.5,desc:'Raw hand-to-hand adds click power.' },
+  { id:'pistol',     name:'Pistol Rack',      icon:'🔫',  baseCost:150,      type:'dps',   baseDps:0.5,  baseClick:0,  desc:'Automated pistols fire steadily.' },
+  { id:'training',   name:'Training Ground',  icon:'🏋',  baseCost:400,      type:'click', baseDps:0,    baseClick:2,  desc:'Trained soldiers hit harder.' },
+  { id:'rifle',      name:'Rifle Range',      icon:'🎯',  baseCost:1000,     type:'dps',   baseDps:4,    baseClick:0,  desc:'Precision rifles on targets.' },
+  { id:'sharpshoot', name:'Sharpshooter',     icon:'🕵',  baseCost:2500,     type:'click', baseDps:0,    baseClick:5,  desc:'An expert eye boosts each shot.' },
+  { id:'turret',     name:'Auto-Turret',      icon:'🤖',  baseCost:5000,     type:'dps',   baseDps:15,   baseClick:0,  desc:'Heavy automated turret.' },
+  { id:'berserker',  name:'Berserker Unit',   icon:'😤',  baseCost:12000,    type:'click', baseDps:0,    baseClick:12, desc:'Rage-fuelled soldiers click harder.' },
+  { id:'drone',      name:'Drone Squadron',   icon:'🚁',  baseCost:25000,    type:'dps',   baseDps:50,   baseClick:0,  desc:'Aerial drones patrol the skies.' },
+  { id:'explosive',  name:'Explosive Expert', icon:'💣',  baseCost:60000,    type:'click', baseDps:0,    baseClick:30, desc:'Each click packs a bigger punch.' },
+  { id:'tank',       name:'Tank Division',    icon:'🪖',  baseCost:150000,   type:'dps',   baseDps:200,  baseClick:0,  desc:'Heavy armour rolls in.' },
+  { id:'assassin',   name:'Assassin Squad',   icon:'🗡',  baseCost:350000,   type:'click', baseDps:0,    baseClick:75, desc:'Silent, deadly, devastating clicks.' },
+  { id:'satellite',  name:'War Satellite',    icon:'🛰',  baseCost:800000,   type:'dps',   baseDps:600,  baseClick:0,  desc:'Orbital strike capability.' },
+  { id:'cyber',      name:'Cyber Warrior',    icon:'🦾',  baseCost:2000000,  type:'click', baseDps:0,    baseClick:200,desc:'Augmented soldiers hit like trucks.' },
+  { id:'bunker',     name:'War Bunker',       icon:'🏚',  baseCost:5000000,  type:'dps',   baseDps:2000, baseClick:0,  desc:'A fortress of firepower.' },
+  { id:'nuke',       name:'Nuclear Arsenal',  icon:'☢',  baseCost:15000000, type:'click', baseDps:0,    baseClick:600,desc:'Nuclear-powered click devastation.' },
+  { id:'carrier',    name:'Carrier Fleet',    icon:'⚓',  baseCost:50000000, type:'dps',   baseDps:8000, baseClick:0,  desc:'Naval fleet dominates the seas.' },
+  { id:'supersol',   name:'Super Soldier',    icon:'🦸',  baseCost:150000000,type:'click', baseDps:0,    baseClick:2000,desc:'Peak human performance per click.' },
 ];
 
 const UPGRADES = [
-  { id:'grip',     name:'Better Grip',      icon:'✋', cost:100,    desc:'+1 click damage',        type:'click', value:1 },
-  { id:'hollow',   name:'Hollow Points',    icon:'💊', cost:500,    desc:'+3 click damage',        type:'click', value:3 },
-  { id:'trigger',  name:'Speed Trigger',    icon:'⚡', cost:2000,   desc:'+5 click damage',        type:'click', value:5 },
-  { id:'burst',    name:'Burst Fire',       icon:'💥', cost:8000,   desc:'+15 click damage',       type:'click', value:15 },
-  { id:'armour',   name:'Dragon Rounds',    icon:'🐉', cost:50000,  desc:'+50 click damage',       type:'click', value:50 },
-  { id:'oiler',    name:'Auto Oiler',       icon:'🛢', cost:200,    desc:'Lookouts x2 DPS',        type:'mult', building:'lookout' },
-  { id:'mags',     name:'Extended Mags',    icon:'📦', cost:1000,   desc:'Pistol Racks x2 DPS',    type:'mult', building:'pistol' },
-  { id:'scope',    name:'Sniper Scope',     icon:'🔭', cost:5000,   desc:'Rifle Ranges x2 DPS',    type:'mult', building:'rifle' },
-  { id:'ai',       name:'AI Targeting',     icon:'🧠', cost:20000,  desc:'Auto-Turrets x2 DPS',    type:'mult', building:'turret' },
-  { id:'stealth',  name:'Stealth Coating',  icon:'👻', cost:80000,  desc:'Drone Squads x2 DPS',    type:'mult', building:'drone' },
-  { id:'reactive', name:'Reactive Armour',  icon:'🛡', cost:300000, desc:'Tank Divs x2 DPS',       type:'mult', building:'tank' },
-  { id:'laser',    name:'Laser Guidance',   icon:'🔴', cost:1000000,desc:'War Sats x2 DPS',        type:'mult', building:'satellite' },
+  // ── CLICK DAMAGE UPGRADES ──
+  { id:'grip',        name:'Better Grip',        icon:'✋', cost:100,       desc:'+1 click damage',          type:'click', value:1 },
+  { id:'tape',        name:'Combat Tape',         icon:'🩹', cost:300,       desc:'+2 click damage',          type:'click', value:2 },
+  { id:'hollow',      name:'Hollow Points',       icon:'💊', cost:800,       desc:'+3 click damage',          type:'click', value:3 },
+  { id:'gloves',      name:'Tactical Gloves',     icon:'🧤', cost:2000,      desc:'+5 click damage',          type:'click', value:5 },
+  { id:'trigger',     name:'Speed Trigger',       icon:'⚡', cost:5000,      desc:'+8 click damage',          type:'click', value:8 },
+  { id:'burst',       name:'Burst Fire',          icon:'💥', cost:15000,     desc:'+15 click damage',         type:'click', value:15 },
+  { id:'incendiary',  name:'Incendiary Rounds',   icon:'🔥', cost:40000,     desc:'+25 click damage',         type:'click', value:25 },
+  { id:'armour',      name:'Dragon Rounds',       icon:'🐉', cost:100000,    desc:'+50 click damage',         type:'click', value:50 },
+  { id:'railgun',     name:'Railgun Slug',        icon:'🧲', cost:500000,    desc:'+150 click damage',        type:'click', value:150 },
+  { id:'antimatter',  name:'Antimatter Shell',    icon:'💫', cost:2000000,   desc:'+500 click damage',        type:'click', value:500 },
+  { id:'godshot',     name:'Godshot Round',       icon:'✨', cost:20000000,  desc:'+2000 click damage',       type:'click', value:2000 },
+
+  // ── BUILDING DPS MULTIPLIERS ──
+  { id:'binoculars',  name:'Binoculars',          icon:'🔍', cost:200,       desc:'Scout Posts x2 DPS',       type:'mult', building:'scout' },
+  { id:'knucklemult', name:'Iron Knuckles',        icon:'🥊', cost:400,       desc:'Knuckle Dusters x2 click', type:'bmult_click', building:'knuckle' },
+  { id:'oiler',       name:'Auto Oiler',           icon:'🛢', cost:1000,      desc:'Pistol Racks x2 DPS',      type:'mult', building:'pistol' },
+  { id:'bootcamp',    name:'Boot Camp',            icon:'🎽', cost:3000,      desc:'Training Grounds x2 click',type:'bmult_click', building:'training' },
+  { id:'scope',       name:'Sniper Scope',         icon:'🔭', cost:8000,      desc:'Rifle Ranges x2 DPS',      type:'mult', building:'rifle' },
+  { id:'eyepatch',    name:'Tactical Eye Patch',   icon:'🏴', cost:20000,     desc:'Sharpshooters x2 click',   type:'bmult_click', building:'sharpshoot' },
+  { id:'ai',          name:'AI Targeting',         icon:'🧠', cost:50000,     desc:'Auto-Turrets x2 DPS',      type:'mult', building:'turret' },
+  { id:'rage',        name:'Rage Serum',           icon:'💉', cost:120000,    desc:'Berserkers x2 click',      type:'bmult_click', building:'berserker' },
+  { id:'stealth',     name:'Stealth Coating',      icon:'👻', cost:300000,    desc:'Drone Squads x2 DPS',      type:'mult', building:'drone' },
+  { id:'c4',          name:'C4 Packs',             icon:'🧨', cost:700000,    desc:'Explosive Experts x2 click',type:'bmult_click', building:'explosive' },
+  { id:'reactive',    name:'Reactive Armour',      icon:'🛡', cost:1500000,   desc:'Tank Divs x2 DPS',         type:'mult', building:'tank' },
+  { id:'katana',      name:'Mono-Katana',          icon:'⚔', cost:4000000,   desc:'Assassin Squads x2 click', type:'bmult_click', building:'assassin' },
+  { id:'laser',       name:'Laser Guidance',       icon:'🔴', cost:10000000,  desc:'War Sats x2 DPS',          type:'mult', building:'satellite' },
+  { id:'neural',      name:'Neural Interface',     icon:'🖥', cost:25000000,  desc:'Cyber Warriors x2 click',  type:'bmult_click', building:'cyber' },
+  { id:'fusion',      name:'Fusion Reactor',       icon:'⚛', cost:60000000,  desc:'War Bunkers x2 DPS',       type:'mult', building:'bunker' },
+  { id:'nuke_upg',    name:'Nuke Upgrade',         icon:'☢', cost:150000000, desc:'Nuclear Arsenal x2 click', type:'bmult_click', building:'nuke' },
 ];
 
 const MILESTONES = [
@@ -1311,18 +1340,34 @@ function buildingCost(b) {
 }
 
 function buildingDps(b) {
+  if (b.type === 'click') return 0; // click buildings don't contribute DPS
   let dps = b.baseDps;
   UPGRADES.forEach(u => {
     if (u.type === 'mult' && u.building === b.id && (G.upgrades[u.id] || 0) > 0) {
       dps *= Math.pow(2, G.upgrades[u.id]);
     }
-  updateRebirthBtn();
   });
+  updateRebirthBtn();
   return dps * G.buildings[b.id];
+}
+
+function buildingClick(b) {
+  if (b.type !== 'click') return 0;
+  let click = b.baseClick;
+  UPGRADES.forEach(u => {
+    if (u.type === 'bmult_click' && u.building === b.id && (G.upgrades[u.id] || 0) > 0) {
+      click *= Math.pow(2, G.upgrades[u.id]);
+    }
+  });
+  return click * G.buildings[b.id];
 }
 
 function totalDps() {
   return BUILDINGS.reduce((sum, b) => sum + buildingDps(b), 0);
+}
+
+function totalBuildingClick() {
+  return BUILDINGS.reduce((sum, b) => sum + buildingClick(b), 0);
 }
 
 function addNotif(msg, type = 'normal') {
@@ -1344,7 +1389,7 @@ function renderStats() {
   const dps = totalDps();
   document.getElementById('dps-display').textContent = dps.toFixed(1) + ' per second';
   document.getElementById('hdr-dps').textContent = dps.toFixed(1) + '/s';
-  document.getElementById('hdr-cpc').textContent = G.clickDamage;
+  document.getElementById('hdr-cpc').textContent = Math.floor(G.clickDamage + totalBuildingClick());
   document.getElementById('stat-clicks').textContent = fmt(G.totalClicks);
   document.getElementById('stat-buildings').textContent = BUILDINGS.reduce((s,b)=>s+G.buildings[b.id],0);
   document.getElementById('stat-upgrades').textContent = Object.values(G.upgrades).reduce((a,b)=>a+b,0);
@@ -1379,7 +1424,7 @@ function renderShop() {
       <div class="shop-item ${afford ? 'can-afford' : 'cant-afford'}" onclick="buyBuilding('${b.id}')">
         <div class="si-icon">${b.icon}</div>
         <div class="si-info">
-          <div class="si-name">${b.name}</div>
+          <div class="si-name">${b.name} <span style="font-size:0.6rem; padding:1px 5px; border-radius:3px; margin-left:4px; ${b.type==='click' ? 'background:rgba(255,140,0,0.15);color:#ff8c00;border:1px solid #ff8c00;' : 'background:rgba(100,200,100,0.1);color:#44bb44;border:1px solid #2a5a2a;'}">${b.type==='click'?'CLICK':'DPS'}</span></div>
           <div class="si-desc">${b.desc}</div>
         </div>
         <div class="si-right">
@@ -1493,6 +1538,7 @@ function buyUpgrade(id) {
   G.money -= cost;
   G.upgrades[id] = count + 1;
   if (u.type === 'click') G.clickDamage += u.value;
+  // bmult_click handled dynamically in buildingClick()
   saveGame();
   addNotif(`${u.icon} ${u.name} upgraded to Lv${G.upgrades[id]}!`);
   renderAll();
@@ -1625,7 +1671,7 @@ gunBtn.addEventListener('click', function(e) {
   G.lastClickTime = now;
 
   const comboBonus = Math.max(1, Math.floor(G.combo / 5));
-  const damage = Math.floor(G.clickDamage * comboBonus * G.rebirthMult);
+  const damage = Math.floor((G.clickDamage + totalBuildingClick()) * comboBonus * G.rebirthMult);
   G.money += damage;
   G.totalEarned += damage;
   G.totalClicks++;
